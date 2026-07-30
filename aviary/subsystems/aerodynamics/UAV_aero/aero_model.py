@@ -1,29 +1,7 @@
 '''
-This model firstly introduces explicit components for fuselage drag, vtail drag, and 
-landing gear drag.
 
-Then, an explicit component is created to compute the time averages of total coefficient of drag,
-fuselage coefficient of drag*, and total coefficient of lift. 
-
-Next, the total aircraft aero group is created, with the fuse drag, vtail drag, and landing
-gear drag components as subsystems. 
-
-Also in this group are execcomps that sum the individual CD's from each of the subsystems 
-and output total CD. 
-
-Lastly within total aircraft aero there is an OASAero subsystem that comes from 
-OAS_aero_analysis and computes wing/htail lift and drag, as well as angle of attack.
-
-Questions: 
-    Is everything wired correctly? 
-
-    Are all necessary inputs/outputs being considered?
-
-    Why do we have the time average of fuselage CD but not other individual components' CD? 
-
-    Is OASAero being used correctly/Is there a better way to use it?
 '''
-
+ 
 import numpy as np
 import openmdao.api as om
 
@@ -249,13 +227,17 @@ class TotalAircraftAero(om.Group):
             promotes_outputs=[      #added outputs to be promoted
                 Dynamic.Vehicle.LIFT,
                 Dynamic.Atmosphere.DYNAMIC_PRESSURE,
-                'alpha',
+                'lift_balance_residual',
                 'lifting_surface_drag',
-                ('lifting_surface_CL',
-                Dynamic.Vehicle.LIFT_COEFFICIENT,
-                ),
+                ('lifting_surface_CL', Dynamic.Vehicle.LIFT_COEFFICIENT),
                 'lifting_surface_CD',
             ]
+        )
+        self.set_input_defaults(
+            'alpha',
+            val=np.full(nn, 3.0),
+            units='deg',
+            src_shape=(nn,),
         )
 
         self.add_subsystem(

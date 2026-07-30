@@ -1,21 +1,5 @@
 '''
-The builder for aero external subsystem. 
 
-inputs: altitude and velocity
-
-outputs: lift, drag, alpha, avg_CL, lifting_surface_CD
-
-parameters: geometry of wing, tail, fuselage; span, root_chord, sweep, etc
-
-QUESTIONS:
-    Should there be a PRE-MISSION for an aero external subsystem?
-
-    Do we or do we not need needs_mission_solver,i.e. is there a solver that gets used?
-
-    Is everything being called/used in a way that is up to date with 2026 Aviary?
-
-    Where are the returned outputs being used as opposed to all of the other outputs 
-    that warrants them being outputs and not the others?
 '''
 
 import openmdao.api as om
@@ -48,7 +32,7 @@ class AeroBuilder(SubsystemBuilder):
             Dynamic.Vehicle.LIFT,
             Dynamic.Vehicle.DRAG,
             Dynamic.Vehicle.DRAG_COEFFICIENT,
-            'alpha',
+            'lift_balance_residual',
             Dynamic.Vehicle.LIFT_COEFFICIENT,
             'lifting_surface_CD',
             'CD_fus',
@@ -120,4 +104,4 @@ class AeroBuilder(SubsystemBuilder):
         )
     
     def needs_mission_solver(self, aviary_inputs=None, subsystem_options=None, **kwargs):
-        return False      #changed from false to true
+        return False
